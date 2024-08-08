@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, TextInput, Image } from 'react-native';
-import { useRouter } from 'expo-router'; // This hook is used for navigation
+import { useRouter } from 'expo-router'; 
 import Body from '@/components/Body';
 
 export default function LoginScreen() {
