@@ -1,10 +1,10 @@
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config(); // Load environment variables from .env
+require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Default port or environment port
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json()); // To parse JSON bodies
@@ -25,12 +25,10 @@ const connectDB = async () => {
 
 connectDB();
 
-// Define a basic route
-app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
-});
+// Import and use routes
+const userRoutes = require('./routes/UserRoutes');
+app.use('/api', userRoutes);
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
