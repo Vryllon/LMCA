@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router'; 
 import Body from '@/components/Body';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -25,13 +26,18 @@ export default function SignupScreen() {
       })
     })
       .then(response => response.json())
-      .then(data => {
+      .then(async data => {
         if (data.error) {
           setError(data.error); 
         } else {
           // Handle successful signup
           console.log(data);
-          router.push('/home')
+          // Store the user's data
+          await AsyncStorage.setItem('id', data._id);
+          await AsyncStorage.setItem('username', data.username);
+          console.log('stored');
+          router.push('/home');
+          console.log('routed');
         }
       })
       .catch(error => {

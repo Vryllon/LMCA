@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 export default function Body({ content } : any) {
     return (
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollViewContent: {
-        flexGrow: 1, // Ensures the ScrollView content container grows to fill the available space
+        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },

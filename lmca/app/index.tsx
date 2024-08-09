@@ -1,10 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router'; 
 import Body from '@/components/Body';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = () => {
+
+    setError('');
+
+    fetch('http://10.0.0.189:3000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    })
+      .then(response => response.json())
+      .then(async data => {
+        if (data.error) {
+          setError(data.error); 
+        } else {
+          // Handle successful signup
+          console.log(data);
+          router.push('/home');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setError('An unexpected error occurred.');
+      });
+    
+      
+    
+  }
 
   return (
     <Body content={
@@ -22,9 +59,11 @@ export default function LoginScreen() {
 
           <Text style={styles.title}>Login</Text>
 
-          <TextInput style={styles.textInput} value="Username"/>
+          <TextInput style={styles.textInput} value={username} placeholder='username' onChangeText={setUsername}/>
+          <TextInput style={styles.textInput} value={password} placeholder='password' onChangeText={setPassword}/>
 
-          <TextInput style={styles.textInput} value="Password"/>
+          <Button title="Login" onPress={handleSubmit}/>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <View style={styles.transferRow}>
 
@@ -74,5 +113,9 @@ textInput: {
 transferRow: {
   flexDirection: 'row',
   alignItems: 'center',
-}
+},
+errorText: {
+  color: 'red',
+  marginBottom: 10,
+},
 });
