@@ -6,9 +6,21 @@ const router = express.Router();
 // Create a new user
 router.post('/users', async (req, res) => {
   try {
+    // Extract the username from the request body
+    const { username } = req.body;
+
+    // Check if a user with the same username already exists
+    const existingUser = await User.findOne({ username });
+    
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username is already taken.' });
+    }
+
+    // If the username is available, create a new user
     const newUser = new User(req.body);
     await newUser.save();
     res.status(201).json(newUser);
+
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
