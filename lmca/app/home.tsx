@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Body from '@/components/Body';
+import Tabbar from '@/components/Tabbar';
 
 const HomeScreen = () => {
 
@@ -26,12 +27,18 @@ const HomeScreen = () => {
 
   return (
     <Body content={
- 
-      <View style={styles.container}>
+      
+      <>
 
-        <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
+        <View style={styles.container}>
 
-      </View>
+          <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
+
+        </View>
+
+        <Tabbar/>
+
+      </>
 
     }/>
   );
