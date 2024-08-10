@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, TextInput, Image, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router'; 
 import Body from '@/components/Body';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -72,8 +72,9 @@ export default function LoginScreen() {
             secureTextEntry
             onChangeText={setPassword}
           />
-
-          <Button title="Login" onPress={handleSubmit} disabled={loading} />
+          <TouchableOpacity style={styles.loginButton}>
+            <Button title="Login" onPress={handleSubmit} disabled={loading} color='white'/>
+          </TouchableOpacity>
           {loading && <ActivityIndicator size="small" color="#0000ff" />}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -121,6 +122,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
-    marginBottom: 10,
+    marginTop: 10,
+  },
+  loginButton: {
+    backgroundColor: 'blue',
+    borderColor: 'darkblue',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderRadius: 10,
+    width: 100,
   },
 });
