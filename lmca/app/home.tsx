@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Body from '@/components/Body';
 import Tabbar from '@/components/Tabbar';
 import Constants from 'expo-constants';
+import OptionsField from '@/components/OptionsField';
 
 const HomeScreen = () => {
 
   const [username, setUsername] = useState('');
   const [highTemperature, setHighTemperature] = useState(null);
   const [lowTemperature, setLowTemperature] = useState(null);
+  const [zipCode, setZipCode] = useState('12345');
+  const [startDate, setStartDate] = useState('2024-07-10');
+  const [endDate, setEndDate] = useState('2024-08-10');
 
   // Fetch the username from AsyncStorage when the component mounts
   useEffect(() => {
@@ -44,7 +48,7 @@ const HomeScreen = () => {
   
     try {
         // Request High temp value  
-        const responseH = await fetch(`https://api.meteomatics.com/${startDate}12:00:00Z--${endDate}12:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
+        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T12:00:00Z--${endDate}T12:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -58,7 +62,7 @@ const HomeScreen = () => {
         const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.[0]?.value ?? null;
   
         // Request Low temp value  
-        const responseL = await fetch(`https://api.meteomatics.com/${startDate}12:00:00Z--${endDate}12:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
+        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T12:00:00Z--${endDate}T12:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -82,8 +86,8 @@ const HomeScreen = () => {
 
     fetchWeatherData({
       location : '28.5663,-81.2608', 
-      startDate : '2024-08-10T', 
-      endDate : '2024-08-10T'
+      startDate : '2024-08-12', 
+      endDate : '2024-08-12'
     }).then(({ highTemperature, lowTemperature }) => {
       console.log('High Temp:', highTemperature);
       console.log('Low Temp:', lowTemperature);
@@ -93,6 +97,15 @@ const HomeScreen = () => {
 
   }
 
+  // Set up options for option fields
+  const BaseTempOptions = [
+    { id: '1', title: '10C' },
+    { id: '2', title: '0C' },
+    { id: '3', title: '50F' },
+    { id: '4', title: '32F' },
+  ];
+  
+
   return (
     <Body content={
       
@@ -101,6 +114,36 @@ const HomeScreen = () => {
         <View style={styles.container}>
 
           <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
+
+          <Text>Enter Zip Code:</Text>
+          <TextInput 
+            style={styles.textInput} 
+            value={zipCode} 
+            placeholder='12345' 
+            defaultValue={zipCode} 
+            onChangeText={setZipCode}
+          />
+
+          <Text>Enter Date Range (year-month-day):</Text>
+          <View style={styles.inputDatesRow}>
+            <TextInput 
+              style={styles.inputDates} 
+              value={startDate} 
+              placeholder='2024-07-10' 
+              defaultValue={startDate}
+              onChangeText={setStartDate}
+            />
+            <TextInput 
+            style={styles.inputDates} 
+            value={endDate} 
+            placeholder='2024-08-10' 
+            defaultValue={endDate} 
+            onChangeText={setEndDate}
+            />
+          </View>
+
+          <Text>Choose Base Temp Value:</Text>
+          <OptionsField defaultValue='10C' options={BaseTempOptions}/>
 
           <Button title='Get Data' onPress={getWeatherData}/>
 
@@ -127,7 +170,26 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
+    margin: 20,
   },
+  textInput: {
+    width: 200,
+    height: 50,
+    borderWidth: 1,
+    padding: 5,
+    marginVertical: 20,
+  },
+  inputDatesRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+  },
+  inputDates: {
+    width: 100,
+    height: 50,
+    borderWidth: 1,
+    padding: 5,
+    margin: 20,
+  }
 });
 
 export default HomeScreen;

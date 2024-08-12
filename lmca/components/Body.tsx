@@ -1,25 +1,21 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 export default function Body({ content } : any) {
     return (
-        <ScrollView
-            contentContainerStyle={styles.scrollViewContent}
-            style={styles.scrollView}
+        <View
+            style={styles.container}
         >
 
             {content}
             
-        </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    scrollView: {
+    container: {
         flex: 1,
-    },
-    scrollViewContent: {
-        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
