@@ -14,6 +14,8 @@ const HomeScreen = () => {
   const [zipCode, setZipCode] = useState('12345');
   const [startDate, setStartDate] = useState('2024-07-10');
   const [endDate, setEndDate] = useState('2024-08-10');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
 
   // Fetch the username from AsyncStorage when the component mounts
   useEffect(() => {
@@ -97,6 +99,34 @@ const HomeScreen = () => {
 
   }
 
+  const zipToCoord = async () => {
+    try{
+
+      // Access environmental variable
+      const { extra } : any = Constants.expoConfig;
+      const key = extra?.geocodingKey;
+
+      // Request coords from zip
+      const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode},+USA&key=${key}`);
+      if (!response.ok) throw new Error('Failed to fetch coordinate data');
+
+      // Extract high temperature from the API response
+      const data = await response.json();
+      const results = data.results;
+
+      if (results.length > 0) {
+        const geometry = results[0].geometry;
+        setLat(geometry.lat)
+        setLng(geometry.lng)
+      } else {
+        throw new Error('No results found');
+      }
+    } catch (error) {
+      console.error('Error fetching coordinates:', error);
+      throw error;
+    }
+  };
+
   // Set up options for option fields
   const BaseTempOptions = [
     { id: '1', title: '10C' },
@@ -145,8 +175,11 @@ const HomeScreen = () => {
           <Text>Choose Base Temp Value:</Text>
           <OptionsField defaultValue='10C' options={BaseTempOptions}/>
 
-          <Button title='Get Data' onPress={getWeatherData}/>
+          <Button title='Get Coordinates' onPress={zipToCoord}/>
+          <Text>Latitude : {lat || 'N/A'}</Text>
+          <Text>Longitude : {lng || 'N/A'}</Text>
 
+          <Button title='Get Data' onPress={getWeatherData}/>
           <Text>High : {highTemperature || 'N/A'}</Text>
           <Text>Low : {lowTemperature || 'N/A'}</Text>
 
