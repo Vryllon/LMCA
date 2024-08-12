@@ -5,6 +5,7 @@ import Body from '@/components/Body';
 import Tabbar from '@/components/Tabbar';
 import Constants from 'expo-constants';
 import OptionsField from '@/components/OptionsField';
+import { router } from 'expo-router';
 
 const HomeScreen = () => {
 
@@ -61,10 +62,10 @@ const HomeScreen = () => {
         console.log('High Temp Data:', dataH);
   
         // Extract high temperature from the API response
-        const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.[0]?.value ?? null;
+        const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
   
         // Request Low temp value  
-        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T12:00:00Z--${endDate}T12:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
+        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -75,7 +76,8 @@ const HomeScreen = () => {
         console.log('Low Temp Data:', dataL);
   
         // Extract low temperature from the API response
-        const lowTemperature = dataL.data?.[0]?.coordinates?.[0]?.dates?.[0]?.value ?? null;
+        // Extract low temperatures into an array
+    const lowTemperature = dataL.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
   
         return { highTemperature, lowTemperature };
     } catch (error) {
@@ -95,6 +97,7 @@ const HomeScreen = () => {
       console.log('Low Temp:', lowTemperature);
       setHighTemperature(highTemperature);
       setLowTemperature(lowTemperature);
+      router.push('/gddResults');
     });
 
   }
@@ -180,8 +183,6 @@ const HomeScreen = () => {
           <Text>Longitude : {lng || 'N/A'}</Text>
 
           <Button title='Get Data' onPress={getWeatherData}/>
-          <Text>High : {highTemperature || 'N/A'}</Text>
-          <Text>Low : {lowTemperature || 'N/A'}</Text>
 
         </View>
 
