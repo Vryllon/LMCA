@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -27,7 +26,9 @@ connectDB();
 
 // Import and use routes
 const userRoutes = require('./routes/UserRoutes');
+const zipCodeRoutes = require('./routes/ZipCodeRoutes');
 app.use('/api', userRoutes);
+app.use('/api/zipcodes', zipCodeRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
