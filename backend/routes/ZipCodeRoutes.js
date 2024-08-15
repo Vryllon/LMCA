@@ -25,25 +25,23 @@ router.post('/coords', validateZipCode, async (req, res) => {
     const { zip, coords } = req.body;
 
     // Check if the zip code already exists
-    const existingZipCode = await ZipCode.findOne({ zip });
-    if (existingZipCode) {
-      return res.status(400).json({ error: 'Zip code already exists' });
-    }
-
-    // Create and save the new zip code entry
-    const newZipCode = new ZipCode({ zip, coords });
-    await newZipCode.save();
+    const existingZipCode = await ZipCode.findOneAndUpdate(
+      { zip },
+      { coords },
+      { new: true, upsert: true } // Update if exists, or insert if not
+    );
 
     res.status(201).json({
-      message: 'Zip code created successfully',
-      zip: newZipCode.zip,
-      coords: newZipCode.coords
+      message: 'Zip code saved successfully',
+      zip: existingZipCode.zip,
+      coords: existingZipCode.coords
     });
   } catch (error) {
-    console.error('Error creating zip code:', error);
+    console.error('Error saving zip code:', error);
     res.status(500).json({ error: 'An unexpected error occurred.' });
   }
 });
+
 
 // Get coordinates by zip code
 router.get('/coords/:zip', async (req, res) => {

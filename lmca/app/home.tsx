@@ -15,8 +15,7 @@ const HomeScreen = () => {
   const [zipCode, setZipCode] = useState('12345');
   const [startDate, setStartDate] = useState('2024-07-10');
   const [endDate, setEndDate] = useState('2024-08-10');
-  const [lat, setLat] = useState('');
-  const [lng, setLng] = useState('');
+  const [coords, setCoords] = useState('');
 
   // Fetch the username from AsyncStorage when the component mounts
   useEffect(() => {
@@ -103,32 +102,73 @@ const HomeScreen = () => {
   }
 
   const zipToCoord = async () => {
-    try{
-
-      // Access environmental variable
+    try {
+      setCoords(''); // Clear previous coordinates
+  
+      // Check if coordinates are already stored in the database
+      const response = await fetch(`http://10.0.0.189:3000/api/zipcodes/coords/${zipCode}`);
+      const data = await response.json();
+  
+      if (data && data.coords) {
+        // If coordinates are found in the database, use them
+        setCoords(data.coords);
+        console.log("Found coords in DB: " + data.coords);
+        return; // Exit the function
+      }
+  
+      // If not found in the database, fetch coordinates from the external API
+      console.log("No saved zip->coord found. Fetching from API...");
       const { extra } : any = Constants.expoConfig;
       const key = extra?.geocodingKey;
-
-      // Request coords from zip
-      const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode},+USA&key=${key}`);
-      if (!response.ok) throw new Error('Failed to fetch coordinate data');
-
-      // Extract high temperature from the API response
-      const data = await response.json();
-      const results = data.results;
-
+  
+      const apiResponse = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode},+USA&key=${key}`);
+      if (!apiResponse.ok) throw new Error('Failed to fetch coordinate data');
+  
+      const apiData = await apiResponse.json();
+      const results = apiData.results;
+  
       if (results.length > 0) {
         const geometry = results[0].geometry;
-        setLat(geometry.lat)
-        setLng(geometry.lng)
+        const newCoords = `${geometry.lat},${geometry.lng}`;
+        setCoords(newCoords);
+        console.log("Fetched coords from API: " + newCoords);
+  
+        // Save the new coordinates to the database
+        await saveZipToCoord(newCoords);
       } else {
-        throw new Error('No results found');
+        throw new Error('No results found from API');
       }
     } catch (error) {
       console.error('Error fetching coordinates:', error);
       throw error;
     }
   };
+  
+  
+
+  const saveZipToCoord = async (coords: string) => {
+    try {
+      console.log("Save zip to coord called");
+      const zip = zipCode;
+  
+      // Save zipcode->coordinates conversion to the database
+      const response = await fetch(`http://10.0.0.189:3000/api/zipcodes/coords`, {
+        method: 'POST', // Ensure you use POST to create new entries
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ zip, coords })
+      });
+  
+      if (!response.ok) throw new Error('Failed to save zip->coord data');
+      console.log("Successfully saved zip->coord data.");
+    } catch (error) {
+      console.error('Error saving zip->coords:', error);
+      throw error;
+    }
+  };
+  
+  
 
   // Set up options for option fields
   const BaseTempOptions = [
@@ -179,8 +219,6 @@ const HomeScreen = () => {
           <OptionsField defaultValue='10C' options={BaseTempOptions}/>
 
           <Button title='Get Coordinates' onPress={zipToCoord}/>
-          <Text>Latitude : {lat || 'N/A'}</Text>
-          <Text>Longitude : {lng || 'N/A'}</Text>
 
           <Button title='Get Data' onPress={getWeatherData}/>
 
