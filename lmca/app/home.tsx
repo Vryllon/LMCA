@@ -89,14 +89,13 @@ const HomeScreen = () => {
 
     fetchWeatherData({
       location : '28.5663,-81.2608', 
-      startDate : '2024-08-12', 
-      endDate : '2024-08-12'
+      startDate : '2024-08-15', 
+      endDate : '2024-08-15'
     }).then(({ highTemperature, lowTemperature }) => {
       console.log('High Temp:', highTemperature);
       console.log('Low Temp:', lowTemperature);
       setHighTemperature(highTemperature);
       setLowTemperature(lowTemperature);
-      router.push('/gddResults');
     });
 
   }
