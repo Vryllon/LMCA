@@ -17,6 +17,13 @@ const HomeScreen = () => {
   const [endDate, setEndDate] = useState('2024-08-10');
   const [coords, setCoords] = useState('');
 
+  // Access environment variables
+  const { extra } : any = Constants.expoConfig;
+  const usernameW = extra?.meteomaticsUsername;
+  const passwordW = extra?.meteomaticsPassword;
+  const key = extra?.geocodingKey;
+  const myapiURL = extra?.apiURL;
+
   // Fetch the username from AsyncStorage when the component mounts
   useEffect(() => {
     const fetchUsername = async () => {
@@ -36,17 +43,13 @@ const HomeScreen = () => {
 
   // Fetch HiLo temp data from meteomatic api
   const fetchWeatherData = async ({ location, startDate, endDate } : any) => {
-    // Access environment variables
-    const { extra } : any = Constants.expoConfig;
-    const username = extra?.meteomaticsUsername;
-    const password = extra?.meteomaticsPassword;
     
-    if (!username || !password) {
+    if (!usernameW || !passwordW) {
       throw new Error('Meteomatics username and password must be set in environment variables.');
     }
     
     // Create a Basic Auth header
-    const authHeader = 'Basic ' + btoa(username + ':' + password);
+    const authHeader = 'Basic ' + btoa(usernameW + ':' + passwordW);
   
     try {
         // Request High temp value  
@@ -85,43 +88,19 @@ const HomeScreen = () => {
     }
   };
 
-  const getWeatherData = async () => {
-
-    await zipToCoord();
-    console.log('coords : ' + coords + ' date range : ' + startDate + ' - ' + endDate);
-    fetchWeatherData({
-      location : coords, 
-      startDate : endDate, 
-      endDate : startDate
-    }).then(({ highTemperature, lowTemperature }) => {
-      console.log('High Temp:', highTemperature);
-      console.log('Low Temp:', lowTemperature);
-      setHighTemperature(highTemperature);
-      setLowTemperature(lowTemperature);
-    });
-
-  }
-
   const zipToCoord = async () => {
     try {
-      setCoords(''); // Clear previous coordinates
-  
       // Check if coordinates are already stored in the database
-      const response = await fetch(`http://10.0.0.189:3000/api/zipcodes/coords/${zipCode}`);
+      const response = await fetch(`${myapiURL}/zipcodes/coords/${zipCode}`);
       const data = await response.json();
   
       if (data && data.coords) {
-        // If coordinates are found in the database, use them
-        setCoords(data.coords);
         console.log("Found coords in DB: " + data.coords);
-        return; // Exit the function
+        return data.coords; // Return coordinates found in the database
       }
   
       // If not found in the database, fetch coordinates from the external API
       console.log("No saved zip->coord found. Fetching from API...");
-      const { extra } : any = Constants.expoConfig;
-      const key = extra?.geocodingKey;
-  
       const apiResponse = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode},+USA&key=${key}`);
       if (!apiResponse.ok) throw new Error('Failed to fetch coordinate data');
   
@@ -131,11 +110,11 @@ const HomeScreen = () => {
       if (results.length > 0) {
         const geometry = results[0].geometry;
         const newCoords = `${geometry.lat},${geometry.lng}`;
-        setCoords(newCoords);
         console.log("Fetched coords from API: " + newCoords);
   
         // Save the new coordinates to the database
         await saveZipToCoord(newCoords);
+        return newCoords; // Return new coordinates
       } else {
         throw new Error('No results found from API');
       }
@@ -145,6 +124,26 @@ const HomeScreen = () => {
     }
   };
   
+  const getWeatherData = async () => {
+    try {
+      const coords = await zipToCoord(); // Get coordinates from zipToCoord
+      console.log('coords : ' + coords + ' date range : ' + startDate + ' - ' + endDate);
+  
+      fetchWeatherData({
+        location: coords,
+        startDate: endDate,
+        endDate: startDate
+      }).then(({ highTemperature, lowTemperature }) => {
+        console.log('High Temp:', highTemperature);
+        console.log('Low Temp:', lowTemperature);
+        setHighTemperature(highTemperature);
+        setLowTemperature(lowTemperature);
+      });
+    } catch (error) {
+      console.error('Error getting weather data:', error);
+    }
+  };  
+  
   
 
   const saveZipToCoord = async (coords: string) => {
@@ -153,7 +152,7 @@ const HomeScreen = () => {
       const zip = zipCode;
   
       // Save zipcode->coordinates conversion to the database
-      const response = await fetch(`http://10.0.0.189:3000/api/zipcodes/coords`, {
+      const response = await fetch(`${myapiURL}/zipcodes/coords`, {
         method: 'POST', // Ensure you use POST to create new entries
         headers: {
           'Content-Type': 'application/json'

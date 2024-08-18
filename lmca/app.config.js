@@ -42,6 +42,7 @@ export default {
       meteomaticsUsername: process.env.METEOMATIC_USERNAME,
       meteomaticsPassword: process.env.METEOMATIC_PASSWORD,
       geocodingKey: process.env.GEOCODING_KEY,
+      apiURL: process.env.API_URL
     },
     owner: 'noahvaden',
   },

@@ -3,6 +3,7 @@ import { View, Text, Button, StyleSheet, TextInput, Image, ActivityIndicator, To
 import { useRouter } from 'expo-router'; 
 import Body from '@/components/Body';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -10,6 +11,9 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const { extra } : any = Constants.expoConfig;
+  const myapiURL = extra?.apiURL;
 
   const handleSubmit = () => {
     setError('');
@@ -21,7 +25,7 @@ export default function SignupScreen() {
       return;
     }
 
-    fetch('http://10.0.0.189:3000/api/users', {
+    fetch(`${myapiURL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
