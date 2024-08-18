@@ -87,10 +87,12 @@ const HomeScreen = () => {
 
   const getWeatherData = async () => {
 
+    await zipToCoord();
+    console.log('coords : ' + coords + ' date range : ' + startDate + ' - ' + endDate);
     fetchWeatherData({
-      location : '28.5663,-81.2608', 
-      startDate : '2024-08-15', 
-      endDate : '2024-08-15'
+      location : coords, 
+      startDate : endDate, 
+      endDate : startDate
     }).then(({ highTemperature, lowTemperature }) => {
       console.log('High Temp:', highTemperature);
       console.log('Low Temp:', lowTemperature);
@@ -201,14 +203,14 @@ const HomeScreen = () => {
             <TextInput 
               style={styles.inputDates} 
               value={startDate} 
-              placeholder='2024-07-10' 
+              placeholder='2024-07-18' 
               defaultValue={startDate}
               onChangeText={setStartDate}
             />
             <TextInput 
             style={styles.inputDates} 
             value={endDate} 
-            placeholder='2024-08-10' 
+            placeholder='2024-08-18' 
             defaultValue={endDate} 
             onChangeText={setEndDate}
             />
