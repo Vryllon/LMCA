@@ -6,6 +6,7 @@ import Tabbar from '@/components/Tabbar';
 import Constants from 'expo-constants';
 import OptionsField from '@/components/OptionsField';
 import { router } from 'expo-router';
+import GDDResults from '@/components/GDDResults';
 
 const HomeScreen = () => {
 
@@ -128,6 +129,7 @@ const HomeScreen = () => {
     try {
       const coords = await zipToCoord(); // Get coordinates from zipToCoord
       console.log('coords : ' + coords + ' date range : ' + startDate + ' - ' + endDate);
+      setCoords(coords);
   
       fetchWeatherData({
         location: coords,
@@ -180,55 +182,59 @@ const HomeScreen = () => {
   
 
   return (
-    <Body content={
-      
-      <>
+    <>
+      <Body content={
+        
+        <>
 
-        <View style={styles.container}>
+          <View style={styles.container}>
 
-          <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
+            <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
 
-          <Text>Enter Zip Code:</Text>
-          <TextInput 
-            style={styles.textInput} 
-            value={zipCode} 
-            placeholder='12345' 
-            defaultValue={zipCode} 
-            onChangeText={setZipCode}
-          />
-
-          <Text>Enter Date Range (year-month-day):</Text>
-          <View style={styles.inputDatesRow}>
+            <Text>Enter Zip Code:</Text>
             <TextInput 
+              style={styles.textInput} 
+              value={zipCode} 
+              placeholder='12345' 
+              defaultValue={zipCode} 
+              onChangeText={setZipCode}
+            />
+
+            <Text>Enter Date Range (year-month-day):</Text>
+            <View style={styles.inputDatesRow}>
+              <TextInput 
+                style={styles.inputDates} 
+                value={startDate} 
+                placeholder='2024-07-18' 
+                defaultValue={startDate}
+                onChangeText={setStartDate}
+              />
+              <TextInput 
               style={styles.inputDates} 
-              value={startDate} 
-              placeholder='2024-07-18' 
-              defaultValue={startDate}
-              onChangeText={setStartDate}
-            />
-            <TextInput 
-            style={styles.inputDates} 
-            value={endDate} 
-            placeholder='2024-08-18' 
-            defaultValue={endDate} 
-            onChangeText={setEndDate}
-            />
+              value={endDate} 
+              placeholder='2024-08-18' 
+              defaultValue={endDate} 
+              onChangeText={setEndDate}
+              />
+            </View>
+
+            <Text>Choose Base Temp Value:</Text>
+            <OptionsField defaultValue='10C' options={BaseTempOptions}/>
+
+            <Button title='Get Coordinates' onPress={zipToCoord}/>
+
+            <Button title='Get Data' onPress={getWeatherData}/>
+
+            <GDDResults high={highTemperature} low={lowTemperature}/>
+
           </View>
 
-          <Text>Choose Base Temp Value:</Text>
-          <OptionsField defaultValue='10C' options={BaseTempOptions}/>
+        </>
 
-          <Button title='Get Coordinates' onPress={zipToCoord}/>
+      }/>
 
-          <Button title='Get Data' onPress={getWeatherData}/>
-
-        </View>
-
-        <Tabbar/>
-
-      </>
-
-    }/>
+      <Tabbar/>
+    </>
   );
 };
 
