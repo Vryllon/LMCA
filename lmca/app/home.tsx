@@ -54,7 +54,7 @@ const HomeScreen = () => {
   
     try {
         // Request High temp value  
-        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T12:00:00Z--${endDate}T12:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
+        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T12:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -68,7 +68,7 @@ const HomeScreen = () => {
         const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
   
         // Request Low temp value  
-        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
+        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T12:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -205,14 +205,14 @@ const HomeScreen = () => {
               <TextInput 
                 style={styles.inputDates} 
                 value={startDate} 
-                placeholder='2024-07-18' 
+                placeholder='2024-12-19' 
                 defaultValue={startDate}
                 onChangeText={setStartDate}
               />
               <TextInput 
               style={styles.inputDates} 
               value={endDate} 
-              placeholder='2024-08-18' 
+              placeholder='2024-12-19' 
               defaultValue={endDate} 
               onChangeText={setEndDate}
               />
