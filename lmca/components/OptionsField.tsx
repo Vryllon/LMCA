@@ -1,18 +1,19 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, TextInput, TouchableOpacity, View, Button, StyleSheet, Text } from 'react-native';
+import { FlatList, TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 
-export default function OptionsField({ defaultValue, options } : { defaultValue?: string, options: Array<{ id: string, title: string }> }) {
+export default function OptionsField({ defaultValue, options, onChange }: { defaultValue?: string, options: Array<{ id: string, title: string }>, onChange: (value: number) => void }) {
     const [value, setValue] = useState(defaultValue || '');
     const [visible, setVisible] = useState(false);
 
     // Handle button press and select an option
     const handleChoice = useCallback((choice: string) => {
         setValue(choice);
+        onChange(Math.round(((parseFloat(choice.substring(0,choice.length-1)))*10)/10)); // Pass the selected value back to the parent component
         setVisible(false); // Hide list after selection
-    }, []);
+    }, [onChange]);
 
     // Render function for FlatList items
-    const renderItem = ({ item } : { item: { id: string, title: string } }) => (
+    const renderItem = ({ item }: { item: { id: string, title: string } }) => (
         <TouchableOpacity style={styles.item} onPress={() => handleChoice(item.title)}>
             <Text>{item.title}</Text>
         </TouchableOpacity>
@@ -24,9 +25,7 @@ export default function OptionsField({ defaultValue, options } : { defaultValue?
                 style={styles.optionField}
                 onPress={() => setVisible(true)}
             >
-
                 <Text>{value}</Text>
-
             </TouchableOpacity>
             {visible && (
                 <FlatList

@@ -13,6 +13,7 @@ const HomeScreen = () => {
   const [username, setUsername] = useState('');
   const [highTemperature, setHighTemperature] = useState(null);
   const [lowTemperature, setLowTemperature] = useState(null);
+  const [baseTemperature, setBaseTemperature] = useState(0);
   const [zipCode, setZipCode] = useState('12345');
   const [startDate, setStartDate] = useState('2024-07-10');
   const [endDate, setEndDate] = useState('2024-08-10');
@@ -54,7 +55,7 @@ const HomeScreen = () => {
   
     try {
         // Request High temp value  
-        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T12:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
+        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -68,7 +69,7 @@ const HomeScreen = () => {
         const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
   
         // Request Low temp value  
-        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T12:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
+        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -219,13 +220,18 @@ const HomeScreen = () => {
             </View>
 
             <Text>Choose Base Temp Value:</Text>
-            <OptionsField defaultValue='10C' options={BaseTempOptions}/>
+            <OptionsField 
+              defaultValue='10C' 
+              options={BaseTempOptions} 
+              onChange={(value) => setBaseTemperature(value)} 
+            />
+
 
             <Button title='Get Coordinates' onPress={zipToCoord}/>
 
             <Button title='Get Data' onPress={getWeatherData}/>
 
-            <GDDResults high={highTemperature} low={lowTemperature}/>
+            <GDDResults high={highTemperature} low={lowTemperature} base={baseTemperature}/>
 
           </View>
 
