@@ -1,15 +1,16 @@
 import { View, StyleSheet, Text } from "react-native";
 
 type GDDResultsProps = {
-  avgTemperatures: Array<number>;
+  avgTemperatures: number[];
+  dateRange: string[];
   base: any;
 };
 
-export default function GDDResults({ avgTemperatures, base }: GDDResultsProps) {
+export default function GDDResults({ avgTemperatures, dateRange, base }: GDDResultsProps) {
 
   const handleTempType = (temp : number) => {
     if(base <= 10)
-      return Math.round(((temp - 32) * 5/9)*10)/10
+      return Math.round(((temp - 32) * 5/9)*100)/100
     return temp
   }
 
@@ -20,32 +21,45 @@ export default function GDDResults({ avgTemperatures, base }: GDDResultsProps) {
     return gdd
   }
 
-  const createTable = () => {
-    return avgTemperatures.map((temp : any , index : any) => (
-      <Text key={index}>{calculateGDD(temp)}</Text>  // Ensure each item has a unique key
+  const createTable = (avgTemperatures: number[], dateRange: string[]): JSX.Element[] => {
+    return avgTemperatures.map((temp, index) => (
+      <View style={styles.rows}>
+        <Text style={styles.data} key={dateRange[index]}>{dateRange[index]}</Text>
+        <Text style={styles.data} key={dateRange[index]}>{calculateGDD(temp)}</Text>
+      </View>
     ));
   };
 
   return (
-    <View style={styles.columns}>
+    <View style={styles.table}>
       <Text>Growing Degree Day Calculation</Text>
-      {createTable()}
+      {createTable(avgTemperatures, dateRange)}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  columns: {
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "column",
+  data: {
+    textAlign: "center",
+    width: "40%",
+    marginVertical: 5,
+    marginHorizontal: "5%"
   },
   rows: {
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
   },
+  table: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    backgroundColor: "#ddd",
+    width: "80%",
+  },
   list: {
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
     maxHeight: 1000,

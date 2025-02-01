@@ -16,7 +16,7 @@ const HomeScreen = () => {
   const [zipCode, setZipCode] = useState('12345');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [coords, setCoords] = useState('');
+  const [dateRange, setDateRange] = useState([]);
 
   // Access environment variables
   const { extra } : any = Constants.expoConfig;
@@ -58,10 +58,13 @@ const HomeScreen = () => {
       console.log('Average Temp Data:', data);
 
       const temperatures = data.days.map((day: { temp: any; }) => day.temp);
+      const dateRange = data.days.map((day: { datetime: any; }) => day.datetime);
 
       // You now have an array of temperatures, so we just keep it as it is
       console.log('List of Average Temperatures:', temperatures);
       setAvgTemperature(temperatures);
+      console.log('List of Dates:', dateRange);
+      setDateRange(dateRange);
   
     } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -126,7 +129,7 @@ const HomeScreen = () => {
               <Button title='Calculate GDD' color={'black'} onPress={fetchWeatherData}/>
             </View>
 
-            <GDDResults avgTemperatures={avgTemperature} base={baseTemperature}/>
+            <GDDResults avgTemperatures={avgTemperature} dateRange={dateRange} base={baseTemperature}/>
 
           </View>
 
