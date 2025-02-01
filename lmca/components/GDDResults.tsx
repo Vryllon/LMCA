@@ -1,31 +1,35 @@
 import { View, StyleSheet, Text } from "react-native";
 
 type GDDResultsProps = {
-  avgTemperature: number;
+  avgTemperatures: Array<number>;
   base: any;
 };
 
-export default function GDDResults({ avgTemperature, base }: GDDResultsProps) {
+export default function GDDResults({ avgTemperatures, base }: GDDResultsProps) {
 
   const handleTempType = (temp : number) => {
-    if(base > 10)
-      return Math.round((temp * 9/5 + 32)*10)/10
+    if(base <= 10)
+      return Math.round(((temp - 32) * 5/9)*10)/10
     return temp
   }
 
   const calculateGDD = (avgTemperature : number) => {
-    let gdd = Math.round((avgTemperature-base)*100)/100
+    let gdd = Math.round((handleTempType(avgTemperature)-handleTempType(base))*100)/100
     if(gdd < 0)
       return 0
     return gdd
   }
 
+  const createTable = () => {
+    return avgTemperatures.map((temp : any , index : any) => (
+      <Text key={index}>{calculateGDD(temp)}</Text>  // Ensure each item has a unique key
+    ));
+  };
+
   return (
     <View style={styles.columns}>
-      <Text>Average Temperature</Text>
-      <Text>{handleTempType(Math.round((avgTemperature)*100)/100)}</Text>
       <Text>Growing Degree Day Calculation</Text>
-      <Text>{calculateGDD(handleTempType(avgTemperature))}</Text>
+      {createTable()}
     </View>
   );
 }

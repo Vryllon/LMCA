@@ -41,6 +41,7 @@ export default {
       },
       meteomaticsUsername: process.env.METEOMATIC_USERNAME,
       meteomaticsPassword: process.env.METEOMATIC_PASSWORD,
+      vcKey : process.env.VISUALCROSSING_KEY,
       geocodingKey: process.env.GEOCODING_KEY,
       apiURL: process.env.API_URL
     },
