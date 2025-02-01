@@ -11,12 +11,11 @@ import GDDResults from '@/components/GDDResults';
 const HomeScreen = () => {
 
   const [username, setUsername] = useState('');
-  const [highTemperature, setHighTemperature] = useState(null);
-  const [lowTemperature, setLowTemperature] = useState(null);
+  const [avgTemperature, setAvgTemperature] = useState(0);
   const [baseTemperature, setBaseTemperature] = useState(0);
   const [zipCode, setZipCode] = useState('12345');
-  const [startDate, setStartDate] = useState('2024-07-10');
-  const [endDate, setEndDate] = useState('2024-08-10');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [coords, setCoords] = useState('');
 
   // Access environment variables
@@ -44,7 +43,7 @@ const HomeScreen = () => {
   }, []); // Empty dependency array ensures this runs once when component mounts
 
   // Fetch HiLo temp data from meteomatic api
-  const fetchWeatherData = async ({ location, startDate, endDate } : any) => {
+  const fetchWeatherData = async ({ location } : any) => {
     
     if (!usernameW || !passwordW) {
       throw new Error('Meteomatics username and password must be set in environment variables.');
@@ -55,7 +54,7 @@ const HomeScreen = () => {
   
     try {
         // Request High temp value  
-        const responseH = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_max_2m_24h:C/${location}/json?model=mix`, {
+        const responseH = await fetch(`https://api.meteomatics.com/now/t_max_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -66,10 +65,10 @@ const HomeScreen = () => {
         console.log('High Temp Data:', dataH);
   
         // Extract high temperature from the API response
-        const highTemperature = dataH.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
+        const highTemperature = dataH.data[0].coordinates[0].dates[0].value;;
   
         // Request Low temp value  
-        const responseL = await fetch(`https://api.meteomatics.com/${startDate}T00:00:00Z--${endDate}T24:00:00Z/t_min_2m_24h:C/${location}/json?model=mix`, {
+        const responseL = await fetch(`https://api.meteomatics.com/now/t_min_2m_24h:C/${location}/json?model=mix`, {
             headers: {
                 'Authorization': authHeader
             }
@@ -81,12 +80,15 @@ const HomeScreen = () => {
   
         // Extract low temperature from the API response
         // Extract low temperatures into an array
-    const lowTemperature = dataL.data?.[0]?.coordinates?.[0]?.dates?.map((date: { value: any; }) => date.value) ?? [];
+    const lowTemperature = dataL.data[0].coordinates[0].dates[0].value;
+
+    var averageTemperature = (highTemperature + lowTemperature) / 2.0;
+
   
-        return { highTemperature, lowTemperature };
+        return { averageTemperature };
     } catch (error) {
         console.error('Error fetching weather data:', error);
-        return { highTemperature: null, lowTemperature: null };
+        return { averageTemperature : 0 };
     }
   };
 
@@ -136,11 +138,9 @@ const HomeScreen = () => {
         location: coords,
         startDate: endDate,
         endDate: startDate
-      }).then(({ highTemperature, lowTemperature }) => {
-        console.log('High Temp:', highTemperature);
-        console.log('Low Temp:', lowTemperature);
-        setHighTemperature(highTemperature);
-        setLowTemperature(lowTemperature);
+      }).then(({ averageTemperature }) => {
+        console.log('AVG Temp: ', averageTemperature);
+        setAvgTemperature(averageTemperature);
       });
     } catch (error) {
       console.error('Error getting weather data:', error);
@@ -201,21 +201,21 @@ const HomeScreen = () => {
               onChangeText={setZipCode}
             />
 
-            <Text>Enter Date Range (year-month-day):</Text>
-            <View style={styles.inputDatesRow}>
+            <Text>Enter Date Range Below (yyyy/mm/dd)</Text>
+            <View style={styles.dateInputsFormat}>
               <TextInput 
-                style={styles.inputDates} 
+                style={styles.textInput} 
                 value={startDate} 
-                placeholder='2024-12-19' 
-                defaultValue={startDate}
+                placeholder="yyyy/mm/dd"
+                defaultValue=""
                 onChangeText={setStartDate}
               />
-              <TextInput 
-              style={styles.inputDates} 
-              value={endDate} 
-              placeholder='2024-12-19' 
-              defaultValue={endDate} 
-              onChangeText={setEndDate}
+                <TextInput 
+                style={styles.textInput} 
+                value={endDate} 
+                placeholder="yyyy/mm/dd" 
+                defaultValue="" 
+                onChangeText={setEndDate}
               />
             </View>
 
@@ -226,12 +226,12 @@ const HomeScreen = () => {
               onChange={(value) => setBaseTemperature(value)} 
             />
 
+            <View
+              style={styles.submitButton}>
+              <Button title='Calculate GDD' color={'black'} onPress={getWeatherData}/>
+            </View>
 
-            <Button title='Get Coordinates' onPress={zipToCoord}/>
-
-            <Button title='Get Data' onPress={getWeatherData}/>
-
-            <GDDResults high={highTemperature} low={lowTemperature} base={baseTemperature}/>
+            <GDDResults avgTemperature={avgTemperature} base={baseTemperature}/>
 
           </View>
 
@@ -250,6 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
+    width : "100%"
   },
   welcomeText: {
     fontSize: 24,
@@ -257,22 +258,25 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   textInput: {
-    width: 200,
+    width: "40%",
     height: 50,
     borderWidth: 1,
     padding: 5,
     marginVertical: 20,
+    marginHorizontal: "5%"
   },
-  inputDatesRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-  },
-  inputDates: {
-    width: 100,
+  submitButton: {
     height: 50,
     borderWidth: 1,
-    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
     margin: 20,
+    backgroundColor: 'lime'
+  },
+  dateInputsFormat: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   }
 });
 
