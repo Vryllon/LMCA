@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Body from '@/components/Body';
 import Tabbar from '@/components/Tabbar';
@@ -85,53 +85,54 @@ const HomeScreen = () => {
       <Body content={
         
         <>
+          <ScrollView style={styles.scrollContainer}>
+            <View style={styles.container}>
 
-          <View style={styles.container}>
+              <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
 
-            <Text style={styles.welcomeText}>Welcome, {username || 'Guest'}!</Text>
-
-            <Text>Enter Zip Code:</Text>
-            <TextInput 
-              style={styles.textInput} 
-              value={zipCode} 
-              placeholder='12345' 
-              defaultValue={zipCode} 
-              onChangeText={setZipCode}
-            />
-
-            <Text>Enter Date Range Below (yyyy-mm-dd)</Text>
-            <View style={styles.dateInputsFormat}>
+              <Text>Enter Zip Code:</Text>
               <TextInput 
                 style={styles.textInput} 
-                value={startDate} 
-                placeholder="yyyy-mm-dd"
-                defaultValue=""
-                onChangeText={setStartDate}
+                value={zipCode} 
+                placeholder='12345' 
+                defaultValue={zipCode} 
+                onChangeText={setZipCode}
               />
+
+              <Text>Enter Date Range Below (yyyy-mm-dd)</Text>
+              <View style={styles.dateInputsFormat}>
                 <TextInput 
-                style={styles.textInput} 
-                value={endDate} 
-                placeholder="yyyy-mm-dd" 
-                defaultValue="" 
-                onChangeText={setEndDate}
+                  style={styles.textInput} 
+                  value={startDate} 
+                  placeholder="yyyy-mm-dd"
+                  defaultValue=""
+                  onChangeText={setStartDate}
+                />
+                  <TextInput 
+                  style={styles.textInput} 
+                  value={endDate} 
+                  placeholder="yyyy-mm-dd" 
+                  defaultValue="" 
+                  onChangeText={setEndDate}
+                />
+              </View>
+
+              <Text>Choose Base Temp Value:</Text>
+              <OptionsField 
+                defaultValue='10C' 
+                options={BaseTempOptions} 
+                onChange={(value) => setBaseTemperature(value)} 
               />
+
+              <View
+                style={styles.submitButton}>
+                <Button title='Calculate GDD' color={'black'} onPress={fetchWeatherData}/>
+              </View>
+
+              <GDDResults avgTemperatures={avgTemperature} dateRange={dateRange} base={baseTemperature}/>
+
             </View>
-
-            <Text>Choose Base Temp Value:</Text>
-            <OptionsField 
-              defaultValue='10C' 
-              options={BaseTempOptions} 
-              onChange={(value) => setBaseTemperature(value)} 
-            />
-
-            <View
-              style={styles.submitButton}>
-              <Button title='Calculate GDD' color={'black'} onPress={fetchWeatherData}/>
-            </View>
-
-            <GDDResults avgTemperatures={avgTemperature} dateRange={dateRange} base={baseTemperature}/>
-
-          </View>
+          </ScrollView>
 
         </>
 
@@ -149,6 +150,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column',
     width : "100%"
+  },
+  scrollContainer: {
+    paddingVertical: "10%"
   },
   welcomeText: {
     fontSize: 24,
@@ -169,7 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 20,
-    backgroundColor: 'lime'
+    backgroundColor: '#b5d455'
   },
   dateInputsFormat: {
     justifyContent: 'center',

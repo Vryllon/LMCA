@@ -21,10 +21,19 @@ export default function GDDResults({ avgTemperatures, dateRange, base }: GDDResu
     return gdd
   }
 
+  const gddSum = () => {
+    let sum = 0;
+    for(let i = 0; i < avgTemperatures.length; i++){
+      sum += calculateGDD(avgTemperatures[i]);
+    }
+    return Math.round(sum*100)/100;
+  }
+
   const createTable = (avgTemperatures: number[], dateRange: string[]): JSX.Element[] => {
     return avgTemperatures.map((temp, index) => (
       <View style={styles.rows}>
         <Text style={styles.data} key={dateRange[index]}>{dateRange[index]}</Text>
+        <Text style={styles.data} key={dateRange[index]}>{temp}</Text>
         <Text style={styles.data} key={dateRange[index]}>{calculateGDD(temp)}</Text>
       </View>
     ));
@@ -32,7 +41,13 @@ export default function GDDResults({ avgTemperatures, dateRange, base }: GDDResu
 
   return (
     <View style={styles.table}>
-      <Text>Growing Degree Day Calculation</Text>
+      <Text style={styles.tableTitle}>Growing Degree Day Calculation</Text>
+      <Text style={styles.tableSubTitle}>Total GDD from {dateRange[0]} - {dateRange[dateRange.length-1]} : {gddSum()}</Text>
+      <View style={styles.rows}>
+        <Text style={styles.data}>Date</Text>
+        <Text style={styles.data}>Average Temp</Text>
+        <Text style={styles.data}>GDD</Text>
+      </View>
       {createTable(avgTemperatures, dateRange)}
     </View>
   );
@@ -41,9 +56,10 @@ export default function GDDResults({ avgTemperatures, dateRange, base }: GDDResu
 const styles = StyleSheet.create({
   data: {
     textAlign: "center",
-    width: "40%",
-    marginVertical: 5,
-    marginHorizontal: "5%"
+    width: "33.4%",
+    paddingVertical: 5,
+    borderColor: 'black',
+    borderWidth: 1,
   },
   rows: {
     justifyContent: "center",
@@ -55,7 +71,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     backgroundColor: "#ddd",
-    width: "80%",
+    borderColor: 'black',
+    borderWidth: 1,
+    width: "90%",
+    paddingTop: "5%",
   },
   list: {
     justifyContent: "center",
@@ -64,5 +83,16 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     maxHeight: 1000,
     marginTop: 5,
+  },
+  tableTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  tableSubTitle: {
+    fontSize: 16,
+    fontWeight: 'semibold',
+    textAlign: 'center',
+    margin: 10,
   },
 });
